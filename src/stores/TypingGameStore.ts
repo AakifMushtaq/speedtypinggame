@@ -1,6 +1,6 @@
 import { ITypingGameStore } from "./ITypingGameStore";
 import { action, observable, makeAutoObservable } from "mobx";
-
+import typingtexts from "../typingtexts.json"
 export class TypingGameStore implements ITypingGameStore {
 
     @observable
@@ -12,8 +12,12 @@ export class TypingGameStore implements ITypingGameStore {
     @observable
     userInput: string;
 
+    @observable
+    difficulty: string[];
+
     constructor() {
         makeAutoObservable(this);
+        this.difficulty = ["Easy", "Medium", "Hard"]
         this.originalText = 'A virtual assistant (typically abbreviated to VA) is generally self-employed and provides professional administrative, technical, or creative assistance to clients remotely from a home office.';
  
         this.typingText = 'A virtual assistant (typically abbreviated to VA) is generally self-employed and provides professional administrative, technical, or creative assistance to clients remotely from a home office.';
@@ -38,6 +42,22 @@ export class TypingGameStore implements ITypingGameStore {
 
     @action setStoreOriginalText(input: string){
         this.originalText = input;
+    }
+
+    @action updateTextDifficulty(difficulty: string){
+        let text = '';
+        if(difficulty.toLowerCase() === 'easy'){
+            text = typingtexts.TypingTexts.filter(x => x.difficulty === 'easy')[0].text;
+        }
+        else if(difficulty.toLowerCase() === 'medium'){
+            text = typingtexts.TypingTexts.filter(x => x.difficulty === 'medium')[0].text;
+        }
+        else if(difficulty.toLowerCase() === 'hard'){
+            text = typingtexts.TypingTexts.filter(x => x.difficulty === 'hard')[0].text;
+        }
+
+        this.setStoreOriginalText(text);
+        this.setStoreTypingText(text);
     }
 
     @action userInputReceived(input: string): void {

@@ -1,5 +1,10 @@
 export interface ITypingGameStore{
     /**
+     * values for drop down to select difficulty
+     */
+    difficulty: string[];
+    
+    /**
      * variable to store the original text
      * 
      * @type string
@@ -48,4 +53,9 @@ export interface ITypingGameStore{
      * load text
      */
     loadText(): void
+
+    /**
+     * load text
+     */
+    updateTextDifficulty(difficulty: string): void
 }

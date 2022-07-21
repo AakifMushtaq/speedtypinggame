@@ -11,7 +11,9 @@ import {
   CardTitle,
   Label,
   FormGroup,
-  Alert
+  Alert,
+  Dropdown,
+  DropdownItem
 } from 'reactstrap';
 
 import 'bootstrap/dist/css/bootstrap.css';
@@ -25,6 +27,7 @@ interface AppState {
   seconds: number
   showAlert: boolean
   alertText: string
+  selectedOption: string,
 }
 
 interface IAppProps {
@@ -44,6 +47,7 @@ class App extends Component<IAppProps, AppState> {
       seconds: 60,
       showAlert: false,
       alertText: '',
+      selectedOption: 'Easy',
     };
   }
 
@@ -53,11 +57,11 @@ class App extends Component<IAppProps, AppState> {
 
   startInterval = async () => {
     var element = document.getElementById('userInput');
-    await this.setState({ ...this.state, startTimer: true});
-      element?.focus();
+    await this.setState({ ...this.state, startTimer: true });
+    element?.focus();
     this.timer = setInterval(async () => {
       await this.setState({ ...this.state, seconds: this.state.seconds - 1 });
-      
+
     }, 1000);
   }
 
@@ -69,29 +73,29 @@ class App extends Component<IAppProps, AppState> {
   }
 
   toggleAlert = () => {
-    this.setState({...this.state, showAlert: !this.state.showAlert})
+    this.setState({ ...this.state, showAlert: !this.state.showAlert })
     return false
   }
 
   showResult = () => {
     clearInterval(this.timer);
-    this.setState({...this.state, startTimer: false})
+    this.setState({ ...this.state, startTimer: false })
     let timeTaken = 60 - this.state.seconds
     let userTyped = this.props.typingGameStore.userInput.split(' ').length
     let wordCount = this.props.typingGameStore.originalText.split(' ').length
     let wpm = userTyped / timeTaken * 60
-   
+
     let words = this.props.typingGameStore.originalText.split(' ')
     let correctWords = 0;
     words.forEach(x => {
-    correctWords += this.props.typingGameStore.userInput.indexOf(x) >= 0 ? 1 : 0;
+      correctWords += this.props.typingGameStore.userInput.indexOf(x) >= 0 ? 1 : 0;
     })
 
-    let accuracy = correctWords/wordCount * 100
+    let accuracy = correctWords / wordCount * 100
 
     let result = `GREAT JOB!! \n You typed ${userTyped} out of ${wordCount}. Your typing speed is ${Math.round(wpm)} WPM.
     Your accuracy is ${Math.round(accuracy)}%`
-    this.setState({...this.state, alertText: result, showAlert:true})
+    this.setState({ ...this.state, alertText: result, showAlert: true })
   }
 
   render() {
@@ -99,10 +103,10 @@ class App extends Component<IAppProps, AppState> {
       <div className="App">
         <Container>
           <Row>
-            <h1>Welcome to Speed Typing Game</h1>
+            <h1>Welcome to Speed Typing Game</h1>            
             <Alert
               color="info"
-              hidden= {!this.state.showAlert}
+              hidden={!this.state.showAlert}
               toggle={this.toggleAlert}
             >
               {this.state.alertText}
@@ -112,6 +116,25 @@ class App extends Component<IAppProps, AppState> {
                 <CardBody>Count Down Timer <h2>{this.state.seconds}</h2>
                 </CardBody>
               </Card></Col>
+          </Row>
+          <Row><Col>
+          <Card>
+          <div className="select">
+            <select className='dropdown' name="country" 
+            onChange={(val) => 
+              {
+                this.setState({...this.state, selectedOption: val.target.value})
+                this.props.typingGameStore.updateTextDifficulty(val.target.value)
+              }
+          } 
+            value={this.state.selectedOption}>
+              {this.props.typingGameStore.difficulty.map((e, key) => {
+                return <option key={key} value={e}>{e}</option>;
+              })}
+            </select>
+            </div>
+            </Card>
+            </Col>
           </Row>
           <Row className='margin-top'>
             <Col>
@@ -123,8 +146,8 @@ class App extends Component<IAppProps, AppState> {
                   {parse(this.props.typingGameStore.typingText)}
                 </CardBody>
               </Card>
-              <Input 
-                onPaste={(e)=>{
+              <Input
+                onPaste={(e) => {
                   e.preventDefault()
                   return false;
                 }}
@@ -137,7 +160,7 @@ class App extends Component<IAppProps, AppState> {
                   this.props.typingGameStore.setStoreUserInput(e.target.value)
                   console.log(this.props.typingGameStore.userInput)
                   this.props.typingGameStore.userInputReceived(e.target.value)
-                  if(this.props.typingGameStore.userInput.length >= this.props.typingGameStore.originalText.length){
+                  if (this.props.typingGameStore.userInput.length >= this.props.typingGameStore.originalText.length) {
                     this.showResult()
                   }
                 }
